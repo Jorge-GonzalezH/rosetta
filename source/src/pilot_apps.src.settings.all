@@ -572,6 +572,10 @@ sources = {
 		#"nadeem_find_destabilizing_mutation",
 		#"nadeem_compensatory_mutation",
 	],
+	"pilot/Jorge" : [
+		"bootcamp",
+		"bootcamp_jd2",
+	],
 	"pilot/josh" : [
 		"motif_loop_build",
 	],
