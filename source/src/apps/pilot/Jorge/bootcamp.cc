@@ -37,6 +37,21 @@ core::pose::PoseOP mypose = core::import_pose::pose_from_file( filenames[1] );
 core::Real score = sfxn->score( *mypose ); // expect an error
 std::cout << score << std::endl;
 
+
+
+core::Size randres = static_cast< core::Size > (numeric::random::random_range(1, mypose->total_residue())); 
+
+//residue in the pose   
+core::Real pert1 = static_cast< core::Size > (numeric::random::random_range(1,180));        //… code here to get a random number
+core::Real pert2 = static_cast< core::Size > (numeric::random::random_range(1,180));        //… code here to get another random number
+core::Real orig_phi = mypose->phi( randres );
+core::Real orig_psi = mypose->psi( randres );
+mypose->set_phi( randres, orig_phi + pert1 );
+mypose->set_psi( randres, orig_psi + pert2 );
+
+// Call MonteCarlo object’s boltzmann method, passing it your Pose
+
+
 //Scoring a Pose
 //core::Real top = sfxn->score(pose)(*sfxn_)( pose ); 
 //core::Real top = sfxn->(*sfxn)( pose ); 
@@ -44,18 +59,6 @@ std::cout << score << std::endl;
 //Want to see the energies? 
 //pose.energies().show( std::cout );
 //static_cast< core::Size > ( uniform_random_number * N + 1 )
-
-
-//core::Size randres = static_cast< core::Size > random_range(1, mypose->total_residues());    
-//residue in the pose   
-//core::Real pert1 = static_cast< core::Size > random_range(1,180);        //… code here to get a random number
-//core::Real pert2 = static_cast< core::Size > random_range(1,180);        //… code here to get another random number
-//core::Real orig_phi = mypose.phi( randres );
-//core::Real orig_psi = mypose.psi( randres );
-//mypose.set_phi( randres, orig_phi + pert1 );
-//mypose.set_psi( randres, orig_psi + pert2 );
-// Call MonteCarlo object’s boltzmann method, passing it your Pose
-
 
 }
 
