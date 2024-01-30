@@ -12,11 +12,6 @@
 #include <basic/options/option.hh>
 #include <core/pose/Pose.hh>
 #include <core/import_pose/import_pose.hh>
-#include <core/pose/Pose.fwd.hh>
-#include <utility/pointer/owning_ptr.hh>
-#include <core/scoring/ScoreFunctionFactory.hh>
-#include <core/scoring/ScoreFunction.hh>
-using namespace core::scoring;
 
 //int main() {
 //   std:: cout<< "Hola world !!!!!!!" << std::endl;
@@ -24,6 +19,9 @@ using namespace core::scoring;
 //} 
 
 int main( int argc, char ** argv ) {
+
+//and add the following lines to your existing bootcamp.cc file:
+
 devel::init( argc, argv );
 utility::vector1< std::string > filenames = basic::options::option[ basic::options::OptionKeys::in::file::s ].value();
 if ( filenames.size() > 0 ) {
@@ -32,15 +30,6 @@ std::cout << "You entered: " << filenames[ 1 ] << " as the PDB file to be read" 
 	std::cout << "You didn’t provide a PDB file with the -in::file::s option" << std::endl;
 	return 1;
 }
-ScoreFunctionOP sfxn = get_score_function();
-core::pose::PoseOP mypose = core::import_pose::pose_from_file( filenames[1] );
-core::Real score = sfxn->score( *mypose ); // expect an erro
 
-//Scoring a Pose
-core::Real top = sfxn->score(pose); 
-
-
-//Want to see the energies? 
-pose.energies().show( std::cout );
-
+return 0;
 }
