@@ -17,6 +17,10 @@ sources = {
 		"register3",
 		"register4",
 	],
+	"protocols/bootcamp": [
+		"Queue",
+	],
+
 }
 include_path = [
 ]
