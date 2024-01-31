@@ -19,6 +19,12 @@
 #include <protocols/moves/MonteCarlo.hh>
 #include <numeric/random/random.hh>
 #include <protocols/moves/PyMOLMover.hh>
+#include <core/pack/task/TaskFactory.hh>
+#include <core/pack/task/PackerTask.hh>
+#include <core/pack/pack_rotamers.hh>
+#include <core/kinematics/MoveMap.hh>
+#include <core/optimization/MinimizerOptions.hh>
+#include <core/optimization/AtomTreeMinimizer.hh>
 
 using namespace core::scoring;
 
@@ -46,9 +52,12 @@ int main(int argc, char **argv) {
     
     // Initialize a MonteCarlo object
     protocols::moves::MonteCarlo mc(*mypose, *sfxn, 1.0);
-
+    
+		
     // Begin loop
-    for (int i = 0; i < 10; ++i) { // Adjust the loop iterations as needed
+    for (int i = 0; i < 100; ++i) { // Adjust the loop iterations as needed
+ 			  core::pose::Pose copy_pose = *mypose;        // crear esta copia hace al loop mucho mas rapido
+				*mypose = copy_pose;
         // Perturb the phi/psi values for your Pose
         core::Size randres = static_cast<core::Size>(numeric::random::random_range(1, mypose->total_residue()));
         core::Real pert1 = static_cast<core::Real>(numeric::random::random_range(1, 180));
@@ -59,20 +68,28 @@ int main(int argc, char **argv) {
         mypose->set_psi(randres, orig_psi + pert2);
 
         //you will add packing and minimization calls to your application after you have perturbed the phi and psi values.
-        //but before you have called the MonteCarlo::boltzmann function.
         
+        core::pack::task::PackerTaskOP repack_task = core::pack::task::TaskFactory::create_packer_task( *mypose );
+				repack_task->restrict_to_repacking();
+				core::pack::pack_rotamers( *mypose, *sfxn, repack_task );
 
+        //but before you have called the MonteCarlo::boltzmann function.
+        core::kinematics::MoveMap mm;
+				mm.set_bb( true );
+				mm.set_chi( true );
+				
+        core::optimization::MinimizerOptions min_opts( "lbfgs_armijo_atol", 0.01, true );
+        
+        core::optimization::AtomTreeMinimizer atm;
+        atm.run( *mypose, mm, *sfxn, min_opts );
+        
         // Call MonteCarlo object’s boltzmann method, passing it your Pose
         mc.boltzmann(*mypose);
     }
     // c- Call MonteCarlo object’s boltzmann method, passing it your Pose
 
     //Scoring a Pose
-    //core::Real top = sfxn->score(pose)(*sfxn_)( pose );
-    //core::Real top = sfxn->(*sfxn)( pose );
-
-    //pose.energies().show( std::cout );
-    //static_cast< core::Size > ( uniform_random_number * N + 1 )
+    
     
     // Output final score
     core::Real final_score = sfxn->score(*mypose);
