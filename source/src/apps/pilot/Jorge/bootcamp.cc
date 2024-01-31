@@ -18,6 +18,7 @@
 #include <core/scoring/ScoreFunction.hh>
 #include <protocols/moves/MonteCarlo.hh>
 #include <numeric/random/random.hh>
+#include <protocols/moves/PyMOLMover.hh>
 
 using namespace core::scoring;
 
@@ -37,6 +38,9 @@ int main(int argc, char **argv) {
     core::Real score = sfxn->score(*mypose); // expect an error
     std::cout << score << std::endl;
     
+    //Pymol mover
+    protocols::moves::PyMOLObserverOP the_observer = protocols::moves::AddPyMOLObserver( *mypose, true, 0 );
+    the_observer->pymol().apply( *mypose);
     //a- random number generator
     //core::Size randres = static_cast<core::Size>(numeric::random::random_range(1, mypose->total_residue()));
     
@@ -54,6 +58,11 @@ int main(int argc, char **argv) {
         mypose->set_phi(randres, orig_phi + pert1);
         mypose->set_psi(randres, orig_psi + pert2);
 
+        //you will add packing and minimization calls to your application after you have perturbed the phi and psi values.
+        //but before you have called the MonteCarlo::boltzmann function.
+
+        
+        
         // Call MonteCarlo object’s boltzmann method, passing it your Pose
         mc.boltzmann(*mypose);
     }
