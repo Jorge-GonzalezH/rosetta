@@ -53,11 +53,9 @@ int main(int argc, char **argv) {
     // Initialize a MonteCarlo object
     protocols::moves::MonteCarlo mc(*mypose, *sfxn, 1.0);
     
-		
+		core::pose::Pose copy_pose;
     // Begin loop
     for (int i = 0; i < 100; ++i) { // Adjust the loop iterations as needed
- 			  core::pose::Pose copy_pose = *mypose;        // crear esta copia hace al loop mucho mas rapido
-				*mypose = copy_pose;
         // Perturb the phi/psi values for your Pose
         core::Size randres = static_cast<core::Size>(numeric::random::random_range(1, mypose->total_residue()));
         core::Real pert1 = static_cast<core::Real>(numeric::random::random_range(1, 180));
@@ -81,15 +79,18 @@ int main(int argc, char **argv) {
         core::optimization::MinimizerOptions min_opts( "lbfgs_armijo_atol", 0.01, true );
         
         core::optimization::AtomTreeMinimizer atm;
-        atm.run( *mypose, mm, *sfxn, min_opts );
+        //atm.run( *mypose, mm, *sfxn, min_opts );
+        
+        copy_pose = *mypose;        // crear esta copia hace al loop mucho mas rapido
+        atm.run( copy_pose, mm, *sfxn, min_opts );
+        *mypose = copy_pose;
         
         // Call MonteCarlo object’s boltzmann method, passing it your Pose
         mc.boltzmann(*mypose);
     }
     // c- Call MonteCarlo object’s boltzmann method, passing it your Pose
 
-    //Scoring a Pose
-    
+    //Scoring a copy_ose
     
     // Output final score
     core::Real final_score = sfxn->score(*mypose);
