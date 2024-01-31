@@ -60,9 +60,8 @@ int main(int argc, char **argv) {
 
         //you will add packing and minimization calls to your application after you have perturbed the phi and psi values.
         //but before you have called the MonteCarlo::boltzmann function.
+        
 
-        
-        
         // Call MonteCarlo object’s boltzmann method, passing it your Pose
         mc.boltzmann(*mypose);
     }
