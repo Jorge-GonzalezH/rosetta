@@ -20,46 +20,56 @@
 #include <numeric/random/random.hh>
 
 using namespace core::scoring;
- 
-int main( int argc, char ** argv ) {
-devel::init( argc, argv );
 
-utility::vector1< std::string > filenames = basic::options::option[ basic::options::OptionKeys::in::file::s ].value();
-if ( filenames.size() > 0 ) {
-std::cout << "You entered: " << filenames[ 1 ] << " as the PDB file to be read" << std::endl;
-} else {
-	std::cout << "You didn’t provide a PDB file with the -in::file::s option" << std::endl;
-	return 1;
+int main(int argc, char **argv) {
+    devel::init(argc, argv);
+
+    utility::vector1<std::string> filenames = basic::options::option[basic::options::OptionKeys::in::file::s].value();
+    if (filenames.size() > 0) {
+        std::cout << "You entered: " << filenames[1] << " as the PDB file to be read" << std::endl;
+    } else {
+        std::cout << "You didn’t provide a PDB file with the -in::file::s option" << std::endl;
+        return 1;
+    }
+
+    ScoreFunctionOP sfxn = get_score_function();
+    core::pose::PoseOP mypose = core::import_pose::pose_from_file(filenames[1]);
+    core::Real score = sfxn->score(*mypose); // expect an error
+    std::cout << score << std::endl;
+    
+    //a- random number generator
+    //core::Size randres = static_cast<core::Size>(numeric::random::random_range(1, mypose->total_residue()));
+    
+    // Initialize a MonteCarlo object
+    protocols::moves::MonteCarlo mc(*mypose, *sfxn, 1.0);
+
+    // Begin loop
+    for (int i = 0; i < 10; ++i) { // Adjust the loop iterations as needed
+        // Perturb the phi/psi values for your Pose
+        core::Size randres = static_cast<core::Size>(numeric::random::random_range(1, mypose->total_residue()));
+        core::Real pert1 = static_cast<core::Real>(numeric::random::random_range(1, 180));
+        core::Real pert2 = static_cast<core::Real>(numeric::random::random_range(1, 180));
+        core::Real orig_phi = mypose->phi(randres);
+        core::Real orig_psi = mypose->psi(randres);
+        mypose->set_phi(randres, orig_phi + pert1);
+        mypose->set_psi(randres, orig_psi + pert2);
+
+        // Call MonteCarlo object’s boltzmann method, passing it your Pose
+        mc.boltzmann(*mypose);
+    }
+    // c- Call MonteCarlo object’s boltzmann method, passing it your Pose
+
+    //Scoring a Pose
+    //core::Real top = sfxn->score(pose)(*sfxn_)( pose );
+    //core::Real top = sfxn->(*sfxn)( pose );
+
+    //pose.energies().show( std::cout );
+    //static_cast< core::Size > ( uniform_random_number * N + 1 )
+    
+    // Output final score
+    core::Real final_score = sfxn->score(*mypose);
+    std::cout << "Final score: " << final_score << std::endl;
+
+    return 0;
 }
-
-ScoreFunctionOP sfxn = get_score_function();
-core::pose::PoseOP mypose = core::import_pose::pose_from_file( filenames[1] );
-core::Real score = sfxn->score( *mypose ); // expect an error
-std::cout << score << std::endl;
-
-
-
-core::Size randres = static_cast< core::Size > (numeric::random::random_range(1, mypose->total_residue())); 
-
-//residue in the pose   
-core::Real pert1 = static_cast< core::Size > (numeric::random::random_range(1,180));        //… code here to get a random number
-core::Real pert2 = static_cast< core::Size > (numeric::random::random_range(1,180));        //… code here to get another random number
-core::Real orig_phi = mypose->phi( randres );
-core::Real orig_psi = mypose->psi( randres );
-mypose->set_phi( randres, orig_phi + pert1 );
-mypose->set_psi( randres, orig_psi + pert2 );
-
-// Call MonteCarlo object’s boltzmann method, passing it your Pose
-
-
-//Scoring a Pose
-//core::Real top = sfxn->score(pose)(*sfxn_)( pose ); 
-//core::Real top = sfxn->(*sfxn)( pose ); 
-
-//Want to see the energies? 
-//pose.energies().show( std::cout );
-//static_cast< core::Size > ( uniform_random_number * N + 1 )
-
-}
-
 
