@@ -53,8 +53,15 @@ int main(int argc, char **argv) {
     // Initialize a MonteCarlo object
     protocols::moves::MonteCarlo mc(*mypose, *sfxn, 1.0);
     
+    
 		core::pose::Pose copy_pose;
     // Begin loop
+    // Declarar e inicializar los contadores de verdadero y falso
+		int contadorTrue = 0;
+		int contadorFalse = 0;
+		// Declarar e inicializar el contador
+    static int call_count = 0; // Static para que persista entre llamadas de la función
+
     for (int i = 0; i < 100; ++i) { // Adjust the loop iterations as needed
         // Perturb the phi/psi values for your Pose
         core::Size randres = static_cast<core::Size>(numeric::random::random_range(1, mypose->total_residue()));
@@ -87,11 +94,37 @@ int main(int argc, char **argv) {
         
         // Call MonteCarlo object’s boltzmann method, passing it your Pose
         mc.boltzmann(*mypose);
-    }
-    // c- Call MonteCarlo object’s boltzmann method, passing it your Pose
+        // Add code to measure the acceptance / rejection counter
+        bool is_accepted_ = mc.mc_accepted();
+        
+        // Incrementar el contador en cada llamada
+        ++call_count;
+       
 
-    //Scoring a copy_ose
-    
+				// Incrementar los contadores según si se acepta o no
+				if (is_accepted_) {
+			    contadorTrue += 1;
+				} else {
+			    contadorFalse += 1;
+				}
+
+				// Bucle while incorrectamente estructurado, debe ser un if para la impresión
+				//if (contadorTrue < 100) {
+		    std::cout << "True Counter: " << contadorTrue << std::endl;
+ 			  std::cout << "False Counter: " << contadorFalse << std::endl;
+
+				//}
+
+				// Calcula la tasa de aceptación
+				double acceptanceRate = static_cast<double>(contadorTrue) / (contadorFalse + contadorTrue);
+
+				// Imprime la tasa de aceptación
+					std::cout << "Acceptance ratio is: " << acceptanceRate << std::endl;
+
+				//return acceptanceRate;
+    }
+
+
     // Output final score
     core::Real final_score = sfxn->score(*mypose);
     std::cout << "Final score: " << final_score << std::endl;
