@@ -28,6 +28,39 @@
 
 using namespace core::scoring;
 
+utility::vector1< std::pair< core::Size, core::Size > >
+		identify_secondary_structure_spans( std::string const & ss_string ){
+              
+     utility::vector1< std::pair< core::Size, core::Size > > ss_boundaries;
+     core::Size strand_start = -1;
+     for (core::Size ii = 0; ii < ss_string.size(); ++ii) {
+        if (ss_string[ii] == 'E' || ss_string[ii] == 'H') {
+          if (int(strand_start) == -1) {
+            strand_start = ii;
+          } else if (ss_string[ii] != ss_string[strand_start]) {
+             ss_boundaries.push_back(std::make_pair(strand_start + 1, ii));
+             strand_start = ii;
+          }
+        } else {
+          if (int(strand_start) != -1) {
+             ss_boundaries.push_back(std::make_pair(strand_start + 1, ii));
+             strand_start = -1;
+           }
+        }
+    }
+    if (int(strand_start) != -1) {
+      //                                                                                                                                
+      ss_boundaries.push_back(std::make_pair(strand_start + 1, ss_string.size()));
+    }
+    
+    for (core::Size ii = 1; ii <= ss_boundaries.size(); ++ii) {
+       std::cout << "SS Element " << ii << " from residue "
+         << ss_boundaries[ii].first << " to "
+         << ss_boundaries[ii].second << std::endl;
+    	}
+    	return ss_boundaries;
+		}
+		
 int main(int argc, char **argv) {
     devel::init(argc, argv);
 
@@ -38,6 +71,16 @@ int main(int argc, char **argv) {
         std::cout << "You didn’t provide a PDB file with the -in::file::s option" << std::endl;
         return 1;
     }
+    std::string secstruct_codes = "EHHEHH";
+    std::string ss_string = "EEHHEHHE";
+
+    utility::vector1< char > caracter;
+    //se agrego en la sección 3 
+    for ( std::string::size_type ii = 0; ii < secstruct_codes.size(); ++ii ) {
+    		caracter.push_back(secstruct_codes[ii]);
+    }
+    
+    
 
     ScoreFunctionOP sfxn = get_score_function();
     core::pose::PoseOP mypose = core::import_pose::pose_from_file(filenames[1]);
