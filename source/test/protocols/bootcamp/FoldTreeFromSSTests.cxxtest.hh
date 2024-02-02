@@ -21,14 +21,13 @@ class FoldTreeFromSSTests : public CxxTest::TestSuite {
 
 public:
 
-
 	// --------------- Fixtures --------------- //
 
 	// Define a test fixture (some initial state that several tests share)
 	// In CxxTest, setUp()/tearDown() are executed around each test case. If you need a fixture on the test
-	// suite level, i.e. something that gets constructed once before all the tests in the test suite are run,
+	// suite level, i.e. something that gets constructed once before all the tests in the  test suite are run,
 	// suites have to be dynamically created. See CxxTest sample directory for example.
-  
+	
   //se agrego en la sección 3 
   //utility::vector1< std::pair< core::Size, core::Size > >
 	//identify_secondary_structure_spans( std::string const & secstruct_codes );
